@@ -24,7 +24,7 @@ var material = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, wireframe: true }
 var circle = new THREE.Mesh( geometry, material );
 scene.add( circle );
 
-camera.position.z = 20;
+camera.position.z = 10;
 
 // lets add another shape
 

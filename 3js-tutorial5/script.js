@@ -1,3 +1,4 @@
+// When testing this, make sure to run with Live server otherwise it won't work
 
 var scene = new THREE.Scene( );
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -14,12 +15,23 @@ window.addEventListener('resize', function()
     camera.updateProjectionMatrix();
 });
 
+controls = new THREE.OrbitControls(camera, renderer.domElement);
+
 // Create the shape
 var geometry = new THREE.BoxGeometry(1, 1, 1);
+var cubeMaterials =
+[
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+];
 
 // create a material color or image texture
 
-var material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true}); 
+var material = new THREE.MeshFaceMaterial(cubeMaterials); 
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
