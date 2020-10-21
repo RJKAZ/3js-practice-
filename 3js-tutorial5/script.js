@@ -21,12 +21,12 @@ controls = new THREE.OrbitControls(camera, renderer.domElement);
 var geometry = new THREE.BoxGeometry(1, 1, 1);
 var cubeMaterials =
 [
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
-new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('badEnding1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num1.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num3.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num5.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num6.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num4.jpg'), side: THREE.DoubleSide}),
+new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('num2.jpg'), side: THREE.DoubleSide}),
 ];
 
 // create a material color or image texture
