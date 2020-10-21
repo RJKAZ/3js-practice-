@@ -19,8 +19,15 @@ controls = new THREE.OrbitControls(camera, renderer.domElement);
 // Create the shape
 var loader = new THREE.FontLoader();
 
+var circleMaterials =
+[
+    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('num1.jpg'), side: THREE.DoubleSides}),
+    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('num2.jpg'), side: THREE.DoubleSides}),
+]
+
 var geometry = new THREE.CircleGeometry( 1, 5 );
-var material = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, wireframe: true } );
+var material = new THREE.MeshFaceMaterial(circleMaterials);
+// var material = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, wireframe: true } );
 var circle = new THREE.Mesh( geometry, material );
 scene.add( circle );
 
