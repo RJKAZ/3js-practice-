@@ -8,68 +8,9 @@ var keyboard = {};
 var player = { height: 1.8, speed: 0.2, turnSpeed:Math.PI*0.02};;
 var USE_WIREFRAME = false;
 
-// an object needed to hold all the things needed for our loading screeen
-var loadingScreen = {
-  scene: new THREE.Scene(),
-  camera: new THREE.PerspectiveCamera(90, 1280/720, 0.1, 100),
-  box: new THREE.Mesh(
-    new THREE.BoxGeometry(0.5,0.5,0.5),
-    new THREE.MeshBasicMaterial({color: 0x4444ff})
-  )
-};
-
-var loadingManager = null;
-var RESOURCES_LOADED = false;
-
-// Models Index
-
-var models = {
-  tent: {
-    obj: "models/Tent_Poles_01.obj",
-    mtl: "models/Tent_Poles_01.mtl",
-    mesh: null
-  },
-  campfire: {
-    obj: "models/Campfire_01.obj",
-    mtl: "models/Campfire_01.mtl",
-    mesh: null
-  },
-  pirateship: {
-    obj: "models/Pirateship_01.obj",
-    mtl: "models/Pirateship_01.mtl",
-    mesh: null
-  }
-};
-
-// Meshes index
-
-var meshes = {};
-
 function init(){
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(90, 1280/720, 0.1, 1000);
-
-  // set up the loading screen's scene, it can be treated like our main scene
-
-  loadingScreen.box.position.set(0,0,5);
-  loadingScreen.camera.lookAt(loadingScreen.box.position);
-  loadingScreen.scene.add(loadingScreen.box);
-
-  // create a loading manager to set RESOURCES_LOADED when appropraite.
-  // Pass loadingManager to aol resource loaders
-
-  loadingManager = new THREE.LoadingManager();
-
-  loadingManager.onProgress = function(item, loaded, total){
-		console.log(item, loaded, total);
-	};
-
-  loadingManager.onLoad = function(){
-    console.log("loaded all resources");
-    RESOURCES_LOADED = true;
-  };
-
-
 
   mesh = new THREE.Mesh(
     new THREE.BoxGeometry(1,1,1),
@@ -127,30 +68,30 @@ function init(){
 
   // Model Material Loading
 
-  // load models - remember loading in Javascrip is asynchronous, so you need to wrap the code in a function and pass it the index. If you don't then the index '_key' can change while the model is being downloaded
-  //so the wrong model will be matched with the wrong index key
+  var mtlLoader = new THREE.MTLLoader();
+	mtlLoader.load("models/Tent_Poles_01.mtl", function(materials){
+		
+		materials.preload();
+		var objLoader = new THREE.OBJLoader();
+		objLoader.setMaterials(materials);
+		
+		objLoader.load("models/Tent_Poles_01.obj", function(mesh){
+		
+			mesh.traverse(function(node){
+				if( node instanceof THREE.Mesh ){
+					node.castShadow = true;
+					node.receiveShadow = true;
+				}
+			});
+		
+			scene.add(mesh);
+			mesh.position.set(-5, 0, 4);
+			mesh.rotation.y = -Math.PI/4;
+		});
+		
+	});
+
   
-  for ( var _key in models){
-    (function(key){
-      var mtlLoader = new THREE.MTLLoader(loadingManager);
-      mtlLoader.load(models[key].mtl, function(materials){
-        materials.preload();
-
-        var objLoader = new THREE.OBJLoader(loadingManager);
-
-        objLoader.setMaterials(materials);
-        objLoader.load(models[key].obj, function(mesh){
-          mesh.traverse(function(node){
-            if(node instanceof THREE.Mesh){
-              node.castShadow = true;
-              node.recieveShadow = true;
-            }
-          });
-          models[key].mesh = mesh;
-                })
-      })
-    })(_key);
-  }
   
   
 
@@ -172,23 +113,7 @@ function init(){
 
 }
 
-function onResourcesLoaded(){
-  
-}
-
 function animate(){
-
-  // this block runs when resources are loading
-  if ( RESOURCES_LOADED == false){
-    requestAnimationFrame(animate);
-    loadingScreen.box.position.x -= 0.05;
-    if (loadingScreen.box.position.x < -10) loadingScreen.box.position.x = 10;
-    loadingScreen.box.position.y = Math.sin(loadingScreen.box.position.x);
-
-    renderer.render(loadingScreen.scene, loadingScreen.camera);
-    return; // stop the function here. 
-  }
-
   requestAnimationFrame(animate);
 
   mesh.rotation.x += 0.01;

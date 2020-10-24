@@ -21,30 +21,6 @@ var loadingScreen = {
 var loadingManager = null;
 var RESOURCES_LOADED = false;
 
-// Models Index
-
-var models = {
-  tent: {
-    obj: "models/Tent_Poles_01.obj",
-    mtl: "models/Tent_Poles_01.mtl",
-    mesh: null
-  },
-  campfire: {
-    obj: "models/Campfire_01.obj",
-    mtl: "models/Campfire_01.mtl",
-    mesh: null
-  },
-  pirateship: {
-    obj: "models/Pirateship_01.obj",
-    mtl: "models/Pirateship_01.mtl",
-    mesh: null
-  }
-};
-
-// Meshes index
-
-var meshes = {};
-
 function init(){
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(90, 1280/720, 0.1, 1000);
@@ -127,30 +103,30 @@ function init(){
 
   // Model Material Loading
 
-  // load models - remember loading in Javascrip is asynchronous, so you need to wrap the code in a function and pass it the index. If you don't then the index '_key' can change while the model is being downloaded
-  //so the wrong model will be matched with the wrong index key
+  var mtlLoader = new THREE.MTLLoader(loadingManager);
+	mtlLoader.load("models/Tent_Poles_01.mtl", function(materials){
+		
+		materials.preload();
+		var objLoader = new THREE.OBJLoader(loadingManager);
+		objLoader.setMaterials(materials);
+		
+		objLoader.load("models/Tent_Poles_01.obj", function(mesh){
+		
+			mesh.traverse(function(node){
+				if( node instanceof THREE.Mesh ){
+					node.castShadow = true;
+					node.receiveShadow = true;
+				}
+			});
+		
+			scene.add(mesh);
+			mesh.position.set(-5, 0, 4);
+			mesh.rotation.y = -Math.PI/4;
+		});
+		
+	});
+
   
-  for ( var _key in models){
-    (function(key){
-      var mtlLoader = new THREE.MTLLoader(loadingManager);
-      mtlLoader.load(models[key].mtl, function(materials){
-        materials.preload();
-
-        var objLoader = new THREE.OBJLoader(loadingManager);
-
-        objLoader.setMaterials(materials);
-        objLoader.load(models[key].obj, function(mesh){
-          mesh.traverse(function(node){
-            if(node instanceof THREE.Mesh){
-              node.castShadow = true;
-              node.recieveShadow = true;
-            }
-          });
-          models[key].mesh = mesh;
-                })
-      })
-    })(_key);
-  }
   
   
 
@@ -170,10 +146,6 @@ function init(){
 
   animate();
 
-}
-
-function onResourcesLoaded(){
-  
 }
 
 function animate(){
