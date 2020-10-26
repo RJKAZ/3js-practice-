@@ -4,7 +4,7 @@ var meshFloor, ambientLight, light;
 var crate, crateTexture, crateNormalMap, crateBumpMap; 
 
 var keyboard = {};
-var player = { height: 1.8, speed: 0.2, turnSpeed:Math.PI*0.02};;
+var player = { height: 1.8, speed: 0.2, turnSpeed:Math.PI*0.02, canShoot:0};;
 var USE_WIREFRAME = false;
 
 // an object needed to hold all the things needed for our loading screeen
@@ -37,6 +37,12 @@ var models = {
     obj: "models/Pirateship.obj",
     mtl: "models/Pirateship.mtl",
     mesh: null
+  },
+  uzi: {
+    obj: "models/uziGold.obj",
+    mtl: "models/uziGold.mtl",
+    mesh: null,
+    castShadow: false
   }
 };
 
@@ -44,9 +50,12 @@ var models = {
 
 var meshes = {};
 
+var bullets = [];
+
 function init(){
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(90, 1280/720, 0.1, 1000);
+  clock = new THREE.Clock();
 
   // set up the loading screen's scene, it can be treated like our main scene
 
@@ -139,17 +148,27 @@ function init(){
         var objLoader = new THREE.OBJLoader(loadingManager);
 
         objLoader.setMaterials(materials);
-        objLoader.load(models[key].obj, function(mesh){
-          mesh.traverse(function(node){
-            if(node instanceof THREE.Mesh){
-              node.castShadow = true;
-              node.recieveShadow = true;
-            }
-          });
-          models[key].mesh = mesh;
-                })
-      })
-    })(_key);
+				objLoader.load(models[key].obj, function(mesh){
+					
+					mesh.traverse(function(node){
+						if( node instanceof THREE.Mesh ){
+							if('castShadow' in models[key])
+								node.castShadow = models[key].castShadow;
+							else
+								node.castShadow = true;
+							
+							if('receiveShadow' in models[key])
+								node.receiveShadow = models[key].receiveShadow;
+							else
+								node.receiveShadow = true;
+						}
+					});
+					models[key].mesh = mesh;
+					
+				});
+			});
+			
+		})(_key);
   }
   
   
@@ -199,6 +218,14 @@ function onResourcesLoaded(){
   meshes["pirateship"].rotation.set(0, Math.PI, 0); // Rotate it to face the other way
   scene.add(meshes["pirateship"]);
 
+  // player weapon
+
+  meshes["playerweapon"] = models.uzi.mesh.clone();
+  meshes["playerweapon"].position.set(0,2,0);
+  meshes["playerweapon"].scale.set(10,10,10);
+  scene.add(meshes["playerweapon"]);
+
+
 
 
 }
@@ -218,9 +245,21 @@ function animate(){
 
   requestAnimationFrame(animate);
 
+  var time = Date.now() * 0.0005;
+  var delta = clock.getDelta();
+
   mesh.rotation.x += 0.01;
   mesh.rotation.y += 0.02;
   crate.rotation.y += 0.01;
+
+  for (var index=0; index<bullets.length; index+=1){
+    if(bullets[index] === undefined) continue;
+    if(bullets[index].alive == false){
+      bullets.splice(index,1);
+      continue;
+    }
+    bullets[index].position.add(bullets[index].velocity);
+  }
 
   if(keyboard[87]){ // W key
 		camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
@@ -248,6 +287,49 @@ function animate(){
     camera.rotation.y += Math.PI * 0.01;
 
   }
+
+  if (keyboard[32] && player.canShoot <= 0){ // Space Key
+    var bullet = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05,8,8),
+      new THREE.MeshBasicMaterial({color: 0xffffff})
+    );
+    bullet.position.set(
+      meshes["playerweapon"].position.x,
+      meshes["playerweapon"].position.y + 0.2,
+      meshes["playerweapon"].position.z
+    );
+
+    bullet.velocity = new THREE.Vector3(
+      -Math.sin(camera.rotation.y),
+      0,
+      Math.cos(camera.rotation.y)
+    );
+
+    bullet.alive = true;
+    setTimeout(function(){
+      bullet.alive = false;
+      scene.remove(bullet);
+    }, 1000);
+    bullets.push(bullet);
+    scene.add(bullet);
+    player.canShoot = 10;
+  }
+  if(player.canShoot > 0) player.canShoot -= 1;
+
+  // position the gun in front of the camera
+
+  meshes["playerweapon"].position.set(
+    camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+    camera.position.y -  0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+    camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75,
+
+  );
+
+  meshes["playerweapon"].rotation.set(
+    camera.rotation.x,
+    camera.rotation.y - Math.PI,
+    camera.rotation.z
+  );
 
   renderer.render(scene, camera);
 }

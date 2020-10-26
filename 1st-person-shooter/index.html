@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>three.js</title>
-</head>
-<body>
   <script src="three.js"></script>
   <script src="mtlloader.js"></script>
   <script src="OBJLoader.js"></script>
   <script src="script.js"></script>
+</head>
+<body style="text-align: center;">
+  <span style="position:absolute;top:0px;left:0px;"><input type="button" value="Toggle Wireframe" onclick="mesh.material.wireframe=!mesh.material.wireframe;meshFloor.material.wireframe=!meshFloor.material.wireframe;"/><br/>WASD to move.<br/>Arrow keys to turn.</span>
+
+  
 </body>
 </html>
